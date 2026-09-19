@@ -1,0 +1,52 @@
+pipeline {
+
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                bat 'mvn clean package'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                bat 'docker build -t hospital-app .'
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                bat 'docker run --rm hospital-app'
+            }
+        }
+
+        stage('Run Selenium Tests') {
+            steps {
+                bat 'mvn test'
+            }
+        }
+    }
+
+    post {
+
+        always {
+            junit '**/target/surefire-reports/*.xml'
+        }
+
+        success {
+            echo 'Build Successful'
+        }
+
+        failure {
+            echo 'Build Failed'
+        }
+    }
+}
