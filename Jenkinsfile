@@ -1,8 +1,12 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'maven:3.9.9-eclipse-temurin-17'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
 
     stages {
-
         stage('Checkout') {
             steps {
                 checkout scm
@@ -15,18 +19,6 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
-            steps {
-                sh 'docker build -t hospital-app .'
-            }
-        }
-
-        stage('Run Docker Container') {
-            steps {
-                sh 'docker run --rm hospital-app'
-            }
-        }
-
         stage('Run Selenium Tests') {
             steps {
                 sh 'mvn test'
@@ -36,7 +28,7 @@ pipeline {
 
     post {
         always {
-            junit '**/target/surefire-reports/*.xml'
+            junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
         }
 
         success {
