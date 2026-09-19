@@ -1,5 +1,4 @@
 pipeline {
-
     agent any
 
     stages {
@@ -12,31 +11,30 @@ pipeline {
 
         stage('Build') {
             steps {
-                bat 'mvn clean package'
+                sh 'mvn clean package'
             }
         }
 
         stage('Docker Build') {
             steps {
-                bat 'docker build -t hospital-app .'
+                sh 'docker build -t hospital-app .'
             }
         }
 
         stage('Run Docker Container') {
             steps {
-                bat 'docker run --rm hospital-app'
+                sh 'docker run --rm hospital-app'
             }
         }
 
         stage('Run Selenium Tests') {
             steps {
-                bat 'mvn test'
+                sh 'mvn test'
             }
         }
     }
 
     post {
-
         always {
             junit '**/target/surefire-reports/*.xml'
         }
